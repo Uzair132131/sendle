@@ -2,6 +2,7 @@
   "name": "sendle-api-netlify",
   "version": "1.0.0",
   "main": "functions/createSendleOrder.js",
+  "type": "module",
   "dependencies": {
     "axios": "^1.6.0",
     "dotenv": "^17.2.1"
@@ -21,4 +22,6 @@
     "url": "https://github.com/Uzair132131/sendle/issues"
   },
   "homepage": "https://github.com/Uzair132131/sendle#readme"
+
+  
 }
