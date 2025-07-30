@@ -1,22 +1,22 @@
 import axios from 'axios';
 
 export async function handler(event, context) {
-  // Handle preflight CORS request
+  const headers = {
+    'Access-Control-Allow-Origin': '*', // Allow from any origin
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  };
+
+  // Handle preflight
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      },
+      headers,
       body: 'OK',
     };
   }
 
   try {
-    console.log('Received body:', event.body);
-
     if (!event.body) {
       throw new Error('Missing request body');
     }
@@ -40,9 +40,7 @@ export async function handler(event, context) {
 
     return {
       statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
+      headers,
       body: JSON.stringify(response.data),
     };
   } catch (error) {
@@ -50,9 +48,7 @@ export async function handler(event, context) {
 
     return {
       statusCode: error.response?.status || 500,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
+      headers,
       body: JSON.stringify({
         error: 'Sendle order failed',
         details: error.response?.data || error.message,
