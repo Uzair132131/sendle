@@ -32,7 +32,7 @@ This project provides a serverless function that acts as a proxy to the Sendle A
 3. Create a `.env` file with your Sendle credentials:
    ```
    SENDLE_API_URL=https://api.sendle.com/api/orders
-   SENDLE_ID=your_sendle_id
+   SENDLE_ID=your_sendle_idz`
    SENDLE_API_KEY=your_sendle_api_key
    ```
 

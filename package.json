@@ -3,6 +3,22 @@
   "version": "1.0.0",
   "main": "functions/createSendleOrder.js",
   "dependencies": {
-    "axios": "^1.6.0"
-  }
+    "axios": "^1.6.0",
+    "dotenv": "^17.2.1"
+  },
+  "description": "A Netlify serverless function that integrates with the Sendle API for shipping services.",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Uzair132131/sendle.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Uzair132131/sendle/issues"
+  },
+  "homepage": "https://github.com/Uzair132131/sendle#readme"
 }
