@@ -1,32 +1,47 @@
-const axios = require("axios");
-require("dotenv").config();
+const sendle = require('sendle');
+require('dotenv').config();
 
-exports.handler = async function (event) {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
+exports.handler = async (event, context) => {
+  // Handle CORS preflight
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*', // or replace * with your domain
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS'
+      },
+      body: 'OK'
+    };
   }
 
-  const body = JSON.parse(event.body);
-
   try {
-    const response = await axios.post(process.env.SENDLE_API_URL, body, {
-      auth: {
-        username: process.env.SENDLE_ID,
-        password: process.env.SENDLE_API_KEY
+    const body = JSON.parse(event.body);
+
+    const response = await sendle.createOrder({
+      sendle_id: process.env.SENDLE_ID,
+      api_key: process.env.SENDLE_API_KEY,
+      order: {
+        ...body // assumes your payload is shaped correctly
       },
-      headers: {
-        "Content-Type": "application/json"
-      }
+      sandbox: process.env.NODE_ENV !== 'production'
     });
 
     return {
       statusCode: 200,
-      body: JSON.stringify(response.data)
+      headers: {
+        'Access-Control-Allow-Origin': '*', // Allow from frontend
+      },
+      body: JSON.stringify(response)
     };
   } catch (error) {
+    console.error('Sendle API error:', error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: error.response?.data || error.message })
+      headers: {
+        'Access-Control-Allow-Origin': '*', // Always include CORS headers
+      },
+      body: JSON.stringify({ error: 'Sendle order failed', details: error.message })
     };
   }
 };
