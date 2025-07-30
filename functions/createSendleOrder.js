@@ -15,10 +15,10 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    console.log('Received body:', event.body);
+    console.log('✅ Received body:', event.body);
 
     if (!event.body) {
-      throw new Error('Missing request body');
+      throw new Error('❌ Missing request body');
     }
 
     const body = JSON.parse(event.body);
@@ -47,7 +47,14 @@ exports.handler = async (event, context) => {
     };
 
   } catch (error) {
-    console.error('Sendle API error:', error.response?.data || error.message);
+    const errData = error.response?.data || error.message;
+    
+    console.error('❌ Sendle API error:');
+    if (error.response?.data) {
+      console.error(JSON.stringify(error.response.data, null, 2)); // Pretty print full error
+    } else {
+      console.error(error.message);
+    }
 
     return {
       statusCode: error.response?.status || 500,
@@ -56,7 +63,7 @@ exports.handler = async (event, context) => {
       },
       body: JSON.stringify({
         error: 'Sendle order failed',
-        details: error.response?.data || error.message
+        details: errData
       })
     };
   }
