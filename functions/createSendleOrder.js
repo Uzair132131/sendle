@@ -1,4 +1,4 @@
-const sendle = require('sendle');
+const axios = require('axios');
 require('dotenv').config();
 
 exports.handler = async (event, context) => {
@@ -7,7 +7,7 @@ exports.handler = async (event, context) => {
     return {
       statusCode: 200,
       headers: {
-        'Access-Control-Allow-Origin': '*', // or replace * with your domain
+        'Access-Control-Allow-Origin': '*', // or your domain
         'Access-Control-Allow-Headers': 'Content-Type',
         'Access-Control-Allow-Methods': 'POST, OPTIONS'
       },
@@ -18,30 +18,38 @@ exports.handler = async (event, context) => {
   try {
     const body = JSON.parse(event.body);
 
-    const response = await sendle.createOrder({
-      sendle_id: process.env.SENDLE_ID,
-      api_key: process.env.SENDLE_API_KEY,
-      order: {
-        ...body // assumes your payload is shaped correctly
-      },
-      sandbox: process.env.NODE_ENV !== 'production'
-    });
+    const authString = Buffer.from(`${process.env.SENDLE_ID}:${process.env.SENDLE_API_KEY}`).toString('base64');
+
+    const response = await axios.post(
+      process.env.SENDLE_API_URL || 'https://sandbox.sendle.com/api/orders',
+      body,
+      {
+        headers: {
+          'Authorization': `Basic ${authString}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
 
     return {
       statusCode: 200,
       headers: {
-        'Access-Control-Allow-Origin': '*', // Allow from frontend
+        'Access-Control-Allow-Origin': '*'
       },
-      body: JSON.stringify(response)
+      body: JSON.stringify(response.data)
     };
+
   } catch (error) {
-    console.error('Sendle API error:', error);
+    console.error('Sendle API error:', error.response?.data || error.message);
     return {
-      statusCode: 500,
+      statusCode: error.response?.status || 500,
       headers: {
-        'Access-Control-Allow-Origin': '*', // Always include CORS headers
+        'Access-Control-Allow-Origin': '*'
       },
-      body: JSON.stringify({ error: 'Sendle order failed', details: error.message })
+      body: JSON.stringify({
+        error: 'Sendle order failed',
+        details: error.response?.data || error.message
+      })
     };
   }
 };
