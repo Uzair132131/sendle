@@ -1,22 +1,22 @@
-import axios from 'axios';
+const axios = require('axios');
 
-export async function handler(event, context) {
-  const headers = {
-    'Access-Control-Allow-Origin': '*', // Allow from any origin
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  };
-
-  // Handle preflight
+exports.handler = async (event, context) => {
+  // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
-      headers,
-      body: 'OK',
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS'
+      },
+      body: 'OK'
     };
   }
 
   try {
+    console.log('Received body:', event.body);
+
     if (!event.body) {
       throw new Error('Missing request body');
     }
@@ -32,27 +32,32 @@ export async function handler(event, context) {
       body,
       {
         headers: {
-          Authorization: `Basic ${authString}`,
-          'Content-Type': 'application/json',
-        },
+          'Authorization': `Basic ${authString}`,
+          'Content-Type': 'application/json'
+        }
       }
     );
 
     return {
       statusCode: 200,
-      headers,
-      body: JSON.stringify(response.data),
+      headers: {
+        'Access-Control-Allow-Origin': '*'
+      },
+      body: JSON.stringify(response.data)
     };
+
   } catch (error) {
     console.error('Sendle API error:', error.response?.data || error.message);
 
     return {
       statusCode: error.response?.status || 500,
-      headers,
+      headers: {
+        'Access-Control-Allow-Origin': '*'
+      },
       body: JSON.stringify({
         error: 'Sendle order failed',
-        details: error.response?.data || error.message,
-      }),
+        details: error.response?.data || error.message
+      })
     };
   }
-}
+};
